@@ -262,9 +262,6 @@ function Attack(Player) {
                Player2.moveX += 24
            }
         }
-        setTimeout(() => {
-            Player1.State = "free"
-        }, 100)
     }
 
     if ( Player === 2 && Player2.State === "attack") {
@@ -284,9 +281,6 @@ function Attack(Player) {
                Player1.moveX += 12
            }
         }
-        setTimeout(() => {
-            Player2.State = "free"
-        }, 100)
     }
 }
 
@@ -310,9 +304,6 @@ function HeavyAttack(Player) {
                Player2.moveX += 24
            }
         }
-        setTimeout(() => {
-            Player1.State = "free"
-        }, 100)
     }
 
     if ( Player === 2 && Player2.State === "attack") {
@@ -333,9 +324,6 @@ function HeavyAttack(Player) {
                Player1.moveX += 80
            }
         }
-        setTimeout(() => {
-            Player2.State = "free"
-        }, 100)
     }
 }
 
