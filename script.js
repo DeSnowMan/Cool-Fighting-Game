@@ -8,6 +8,16 @@ document.addEventListener("keyup", stopmove)
 let GameTime = 0;
 let Timer = 240
 let GameState = "Menu"
+
+//  Epic Music, Baby
+let TitleMusic = new Audio('Music/TitleSong.mp3');
+let StartMusic = new Audio('Music/Start.mp3');
+let MidHpMusic = new Audio('Music/MidHP.mp3');
+let SemiHpMusic = new Audio('Music/SemiHP.mp3');
+let LowHpMusic = new Audio('Music/LowHP1.mp3');
+let EndingMusic = new Audio('Music/lose.mp3');
+let HitSound = new Audio('Music/Hit.mp3');
+
 let Player1 = {
     x: 25,
     y: 50,
@@ -17,7 +27,7 @@ let Player1 = {
     Crouching: false,
     moveX: 0,
     moveY: 9.81,
-    health: 10,
+    health: 20,
     JumpCount: 0,
     face: "right",
     State: "free",
@@ -40,7 +50,7 @@ let Player2 = {
     Crouching: false,
     moveX: 0,
     moveY: 9.81,
-    health: 10,
+    health: 20,
     JumpCount: 0,
     face: "left",
     State: "free",
@@ -51,6 +61,7 @@ let Player2 = {
         y: 0,
     },
 }
+
 
 
 // updates game time at 1/1th of a second
@@ -78,7 +89,7 @@ function reset() {
         Crouching: false,
         moveX: 0,
         moveY: 9.81,
-        health: 10,
+        health: 20,
         JumpCount: 0,
         face: "right",
         State: "free",
@@ -100,7 +111,7 @@ function reset() {
         Crouching: false,
         moveX: 0,
         moveY: 9.81,
-        health: 10,
+        health: 20,
         JumpCount: 0,
         face: "left",
         State: "free",
@@ -156,9 +167,9 @@ function Jump(Player) {
 // Draws health UI
 function DrawUI() {
     // the Random Letters here are just for calculations, because I couldn't be bothered to give em a unique name for each
-    let B = 36
+    let B = 120
 
-    if (Player1.health < 5) {
+    if (Player1.health < 15) {
         let C = Player1.health - 5
         let D = C * 8
         B += D;
@@ -173,9 +184,9 @@ function DrawUI() {
     }
 
 
-    let E = 36
+    let E = 120
 
-    if (Player2.health < 5) {
+    if (Player2.health < 15) {
         let T = Player2.health - 5
         let G = T * 8
         E += G;
@@ -200,7 +211,18 @@ MovePlayers = () => {
 }
 
 function DrawPlayers() {
-    let P1height = 140
+    
+    if (Player1.Crouching === true) {
+        Player1.h = 92
+    } else {
+        Player1.h = 140
+    }
+
+    if (Player2.Crouching === true) {
+        Player2.h = 92
+    } else {
+        Player2.h = 140
+    }
 
     ctx.fillStyle = 'lime'
     ctx.fillRect(Player1.x, Player1.y, Player1.w, Player1.h)
@@ -335,6 +357,7 @@ function Attack(Player) {
             } else {
                 Player2.moveX += 24
             }
+            HitSound.play()
         }
     }
 
@@ -354,6 +377,7 @@ function Attack(Player) {
             } else {
                 Player1.moveX += 12
             }
+            HitSound.play()
         }
     }
 }
@@ -377,6 +401,7 @@ function HeavyAttack(Player) {
             } else {
                 Player2.moveX += 24
             }
+            HitSound.play()
         }
     }
 
@@ -396,6 +421,7 @@ function HeavyAttack(Player) {
             } else {
                 Player1.moveX += 80
             }
+            HitSound.play()
         }
     }
 }
@@ -439,24 +465,34 @@ function drawTimer() {
 function GameStatesHandler() {
     if (GameState === "Play") {
         DrawGame()
+        TitleMusic.pause()
     } else if (GameState === "Menu") {
         DrawMenu()
+        TitleMusic.play()
     } else if (GameState === "End") {
         DrawDeath()
     }
 }
 
 function DrawDeath() {
-    
+    SemiHpMusic.pause()
+    MidHpMusic.pause()
+    StartMusic.pause()    
+
     ctx.font = "80px Georgia";
 
     if (Player1.health > 0) { 
         ctx.fillStyle = 'lime'
         ctx.fillText (`Player 1 Wins!`, 10, 80)
-    } else {
+    } else if (Player2.health > 0) {
         ctx.fillStyle = 'red'
         ctx.fillText (`Player 2 Wins!`, 10, 80)
+    } else {
+        ctx.fillStyle = 'white'
+        ctx.fillText (`No One Wins!`, 10, 80)
     }
+
+    EndingMusic.play()
     ctx.fillStyle = 'white'
     ctx.font = "20px Georgia";
     ctx.fillText (`Press Space To restart`, 500, 420)
@@ -483,6 +519,22 @@ function DrawMenu() {
     ctx.fillText (`Press Space To start`, 500, 420)
 }
 
+function Music() {
+    if (Player1.health <= 5 || Player2.health <= 5 ) {
+        SemiHpMusic.pause()
+        LowHpMusic.play()
+    } else if (Player1.health <= 10 || Player2.health <= 10) {
+        MidHpMusic.pause()
+        SemiHpMusic.play()
+    } else if (Player1.health <= 15 || Player2.health <= 15) {
+        StartMusic.pause()
+        MidHpMusic.play()
+    } else {
+        StartMusic.play()
+    }
+
+}
+
 function DrawGame() {
     DrawStuff()
     DrawUI()
@@ -493,6 +545,7 @@ function DrawGame() {
     RenderAttacks()
     drawTimer()
     CheckDeath()
+    Music()
 }
 // animation stuff
 requestAnimationFrame(Game)
