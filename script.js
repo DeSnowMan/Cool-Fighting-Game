@@ -9,6 +9,9 @@ let GameTime = 0;
 let Timer = 240
 let GameState = "Menu"
 
+// Images
+let Background1 = document.getElementById("background")
+
 //  Epic Music, Baby
 let TitleMusic = new Audio('Music/TitleSong.mp3');
 let StartMusic = new Audio('Music/Start.mp3');
@@ -128,7 +131,7 @@ function reset() {
 
 // simulates gravity of da earth which is -9.81 m/s
 function Gravity() {
-    if (Player1.y >= 320) {
+    if ( Player1.y >= 320) {
         Player1.y = 320
     } else if (Player1.y <= 320 && Player1.jump === false) {
         Player1.moveY = 9.81
@@ -233,6 +236,7 @@ function DrawPlayers() {
 
 DrawStuff = () => {
     ctx.clearRect(0, 0, 1264, 480)
+    ctx.drawImage(Background1, 0,0)
 }
 
 // Handles Players controls with Event Listener
@@ -475,6 +479,7 @@ function GameStatesHandler() {
 }
 
 function DrawDeath() {
+    LowHpMusic.pause()
     SemiHpMusic.pause()
     MidHpMusic.pause()
     StartMusic.pause()    

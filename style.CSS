@@ -1,7 +1,9 @@
 html {
     background-color: rgb(19, 19, 19);
 }
-
+img {
+    display: none;
+}
 canvas {
     background-color: black;
 }
