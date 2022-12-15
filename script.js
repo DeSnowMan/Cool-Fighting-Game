@@ -9,6 +9,7 @@ let GameTime = 0;
 let Timer = 240
 let GameState = "Menu"
 
+let HealthArray = []
 // Images
 let Background1 = document.getElementById("background")
 
@@ -26,6 +27,7 @@ let Player1 = {
     y: 50,
     w: 60,
     h: 140,
+    MaxY : 320,
     jump: false,
     Crouching: false,
     moveX: 0,
@@ -49,6 +51,7 @@ let Player2 = {
     y: 50,
     w: 60,
     h: 140,
+    MaxY : 320,
     jump: false,
     Crouching: false,
     moveX: 0,
@@ -64,9 +67,6 @@ let Player2 = {
         y: 0,
     },
 }
-
-
-
 // updates game time at 1/1th of a second
 setInterval(UpdateTime, 1000)
 function UpdateTime() {
@@ -131,13 +131,13 @@ function reset() {
 
 // simulates gravity of da earth which is -9.81 m/s
 function Gravity() {
-    if ( Player1.y >= 320) {
-        Player1.y = 320
+    if ( Player1.y >= Player1.MaxY) {
+        Player1.y = Player1.MaxY
     } else if (Player1.y <= 320 && Player1.jump === false) {
         Player1.moveY = 9.81
     }
-    if (Player2.y >= 320) {
-        Player2.y = 320
+    if (Player2.y >= Player2.MaxY) {
+        Player2.y = Player2.MaxY
     } else if (Player2.y <= 320 && Player2.jump === false) {
         Player2.moveY = 9.81
     }
@@ -146,6 +146,18 @@ function Gravity() {
     }
     if (Player2.y <= 20) {
         Player2.moveY = 9.81
+    }
+}
+
+// Handles the gravity and drawing for health packs so they're not mixed with the player's 
+function HealthGav() { 
+    for( let i = 0; i < HealthArray.length; i++ ) {
+        if (HealthArray[i].y > 460) {
+            HealthArray[i].y = 460
+        }
+        HealthArray[i].y += HealthArray[i].moveY
+    
+        ctx.fillRect(HealthArray[i].x, HealthArray[i].y, HealthArray[i].h, HealthArray[i].w)
     }
 }
 
@@ -217,14 +229,18 @@ function DrawPlayers() {
     
     if (Player1.Crouching === true) {
         Player1.h = 92
+        Player1.MaxY = 390
     } else {
         Player1.h = 140
+        Player1.MaxY = 320
     }
 
     if (Player2.Crouching === true) {
         Player2.h = 92
+        Player2.MaxY = 390
     } else {
         Player2.h = 140
+        Player2.MaxY = 320
     }
 
     ctx.fillStyle = 'lime'
@@ -341,7 +357,7 @@ function Wraparound() {
     }
 }
 
-
+// Handles Players Attack function
 function Attack(Player) {
 
     if (Player === 1 && Player1.State === "attack") {
@@ -386,6 +402,7 @@ function Attack(Player) {
     }
 }
 
+// Same as last one but with Bigger Attacks 
 function HeavyAttack(Player) {
 
     if (Player === 1 && Player1.State === "attack") {
@@ -421,9 +438,9 @@ function HeavyAttack(Player) {
             console.log(`YOU'RE HURTING HIM`)
 
             if (Player2.face === "left") {
-                Player1.moveX += -80
+                Player1.moveX += -24
             } else {
-                Player1.moveX += 80
+                Player1.moveX += 24
             }
             HitSound.play()
         }
@@ -540,18 +557,51 @@ function Music() {
 
 }
 
+function SpawnHealth() {
+    let HealthPak = {
+        x: 0,
+        y: 0,
+        w: 20,
+        h: 20,
+        c: '',
+        MoveY : 9.81,
+    }
+    HealthPak.x = RanDec(0, 1264)
+    HealthPak.c = rRGB()
+
+    HealthArray.push(HealthPak)
+}
+
+// returns a random number
+function RanDec(low, high) {
+    return Math.random() * (high - low) + low
+}
+// Returns a random integer between a low and high number
+function RanInt(low, high) {
+    return Math.floor(RanDec(low, high));
+}
+
+// returns a random colour
+function rRGB() {
+    return `rgb(${RanInt(0,255)}, ${RanInt(0,255)}, ${RanInt(0,255)})`
+}
+
+
+
 function DrawGame() {
     DrawStuff()
     DrawUI()
     MovePlayers()
     DrawPlayers()
     Gravity()
+    HealthGav()
     Wraparound()
     RenderAttacks()
     drawTimer()
     CheckDeath()
     Music()
 }
+
 // animation stuff
 requestAnimationFrame(Game)
 function Game() {
