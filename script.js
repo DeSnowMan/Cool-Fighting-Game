@@ -8,8 +8,9 @@ document.addEventListener("keyup", stopmove)
 let GameTime = 0;
 let Timer = 240
 let GameState = "Menu"
-
+let HealthPak
 let HealthArray = []
+let HealthTime = 0
 // Images
 let Background1 = document.getElementById("background")
 
@@ -150,15 +151,44 @@ function Gravity() {
 }
 
 // Handles the gravity and drawing for health packs so they're not mixed with the player's 
-function HealthGav() { 
+function HealthGrav() { 
+
     for( let i = 0; i < HealthArray.length; i++ ) {
-        if (HealthArray[i].y > 460) {
-            HealthArray[i].y = 460
+        if (HealthArray[i].y > 460 || HealthArray[i].y === 450)  {
+            HealthArray[i].y = 450
+        } else {
+            HealthArray[i].y += 9.81
         }
-        HealthArray[i].y += HealthArray[i].moveY
+        
     
+        ctx.fillStyle = HealthArray[i].c
         ctx.fillRect(HealthArray[i].x, HealthArray[i].y, HealthArray[i].h, HealthArray[i].w)
+        PlayerHeal(HealthArray[i].x, HealthArray[i].y, HealthArray[i].h, HealthArray[i].w, i)
     }
+}
+
+function PlayerHeal(x, y, w, h, index) {
+
+    if (Player1.x < x + w &&
+        Player1.x + Player1.w > x &&
+        Player1.y < y + h &&
+        Player1.h + Player1.y > y
+    ) {
+        Player1.health += 1
+        console.log(`YOU'RE HEALING`)
+        HealthArray.splice(index, 1)
+    }
+
+    if (Player2.x < x + w &&
+        Player2.x + Player2.w > x &&
+        Player2.y < y + h &&
+        Player2.h + Player2.y > y
+    ) {
+        Player2.health += 1
+        console.log(`YOU'RE HEALING`)
+        HealthArray.splice(index, 1)
+    }
+
 }
 
 // Makes you counteract the force of gravity which is -9.81 m/s
@@ -368,7 +398,7 @@ function Attack(Player) {
             Player1.attackBox.y < Player2.y + Player2.h &&
             Player1.attackBox.h + Player1.attackBox.y > Player2.y && Player === 1
         ) {
-            Player2.health -= 1
+            Player2.health -= 2
             Player1.attackBox.c = "red"
             console.log(`YOU'RE HURTING HIM`)
 
@@ -388,7 +418,7 @@ function Attack(Player) {
             Player2.attackBox.y < Player1.y + Player1.h &&
             Player2.attackBox.h + Player2.attackBox.y > Player1.y
         ) {
-            Player1.health -= 1
+            Player1.health -= 2
             Player2.attackBox.c = "red"
             console.log(`YOU'RE HURTING HIM`)
 
@@ -418,9 +448,9 @@ function HeavyAttack(Player) {
             console.log(`YOU'RE HURTING HIM`)
 
             if (Player1.face === "left") {
-                Player2.moveX += -24
+                Player2.moveX += -48
             } else {
-                Player2.moveX += 24
+                Player2.moveX += 48
             }
             HitSound.play()
         }
@@ -438,9 +468,9 @@ function HeavyAttack(Player) {
             console.log(`YOU'RE HURTING HIM`)
 
             if (Player2.face === "left") {
-                Player1.moveX += -24
+                Player1.moveX += -48
             } else {
-                Player1.moveX += 24
+                Player1.moveX += 48
             }
             HitSound.play()
         }
@@ -557,19 +587,26 @@ function Music() {
 
 }
 
-function SpawnHealth() {
-    let HealthPak = {
-        x: 0,
-        y: 0,
+function spawnHealth() {
+    HealthPak = {
+        x: 20,
+        y: 20,
         w: 20,
         h: 20,
         c: '',
-        MoveY : 9.81,
     }
-    HealthPak.x = RanDec(0, 1264)
-    HealthPak.c = rRGB()
 
-    HealthArray.push(HealthPak)
+    HealthPak.x = RanDec (20, 1245)
+    HealthPak.c = rRGB()
+    return HealthArray.push(HealthPak)
+}
+
+function healthInterval() {
+    if (GameTime >= HealthTime + 8) {
+        console.log("HealthSpawned")
+        HealthTime = GameTime
+        spawnHealth()
+    }
 }
 
 // returns a random number
@@ -586,15 +623,15 @@ function rRGB() {
     return `rgb(${RanInt(0,255)}, ${RanInt(0,255)}, ${RanInt(0,255)})`
 }
 
-
-
+// Calls alnmost all the functions that were made before this point
 function DrawGame() {
     DrawStuff()
     DrawUI()
     MovePlayers()
     DrawPlayers()
     Gravity()
-    HealthGav()
+    HealthGrav()
+    healthInterval()
     Wraparound()
     RenderAttacks()
     drawTimer()
@@ -605,7 +642,6 @@ function DrawGame() {
 // animation stuff
 requestAnimationFrame(Game)
 function Game() {
-    console.log(GameTime)
     GameStatesHandler()
     requestAnimationFrame(Game)
 }
